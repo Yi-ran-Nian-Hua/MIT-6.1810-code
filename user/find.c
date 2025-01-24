@@ -2,9 +2,11 @@
 // Created by 尹彦江 on 25-1-24.
 //
 
-#include "user/user.h"
+#include "kernel/types.h"
 #include "kernel/stat.h"
+#include "user/user.h"
 #include "kernel/fs.h"
+
 
 void find(char* path, char* target) {
 	char buffer[512], *p;
@@ -28,34 +30,38 @@ void find(char* path, char* target) {
 	switch(fileInfo.type){
 		case T_DEVICE:
 		case T_FILE:
-		  // 如果已经是文件类型或者设备文件类型, 则直接输出信息即可
-		  printf("%s %d %d %l\n", fmtname(path), st.type, st.ino, st.size);
+		  // 如果已经是文件类型或者设备文件类型, 判断其是否与 target 相等, 相等就直接输出
+		if (strcmp(path + strlen(path) - strlen(target), target) == 0)
+		  printf("%s\n", target);
 		break;
-		// 如果是目录, 则仍需要进一步获取信息
+		// 如果是目录, 递归进行寻找
 		case T_DIR:
 			// 首先判断路径名称是否已经超过长度, 如果超过长度则直接返回
-				if(strlen(path) + 1 + DIRSIZ + 1 > sizeof buf){
-					printf("ls: path too long\n");
+				if(strlen(path) + 1 + DIRSIZ + 1 > sizeof(buffer)){
+					printf("find: path too long\n");
 					break;
 				}
-		strcpy(buf, path);
-		p = buf+strlen(buf); // p 指向 buf 的最后一个地方
-		*p++ = '/'; // 在这个地方的后面一个位置添加'/'
-		// 读取 de 的信息
-		while(read(fd, &de, sizeof(de)) == sizeof(de)){
-			if(de.inum == 0)
-				continue;
-			memmove(p, de.name, DIRSIZ); // 保存目录的名字
-			p[DIRSIZ] = 0;
-			if(stat(buf, &st) < 0){
-				printf("ls: cannot stat %s\n", buf);
-				continue;
+			strcpy(buffer, path);
+			p = buffer+strlen(buffer); // p 指向 buf 的最后一个地方
+			*p++ = '/'; // 在这个地方的后面一个位置添加'/'
+			// 读取 de 的信息
+			while(read(fileDescription, &dirInfo, sizeof(dirInfo)) == sizeof(dirInfo)){
+				if(dirInfo.inum == 0)
+					continue;
+				memmove(p, dirInfo.name, DIRSIZ); // 保存目录的名字
+				p[DIRSIZ] = 0;
+				if(stat(buffer, &fileInfo) < 0){
+					printf("find: cannot stat %s\n", buffer);
+					continue;
+				}
+				// 递归调用前, 需要排除掉 .以及..目录以防造成无限递归
+				if (strcmp(dirInfo.name, "/.") == 0 || strcmp(dirInfo.name , "/..") == 0)
+					continue;
+				find(buffer, target);
 			}
-			printf("%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
-		}
-		break;
+			break;
 	}
-	close(fd);
+	close(fileDescription);
 }
 
 int main(int argc, char* argv[]) {
@@ -68,8 +74,9 @@ int main(int argc, char* argv[]) {
 	// 将命令存储下来
 	char path[1024];
 	char target[1024];
+	target[0] = '/';
 	strcpy(path, argv[1]);
-	strcpy(target, argv[2]);
+	strcpy(target + 1, argv[2]);
 	find(path, target);
 	exit(0);
 }
