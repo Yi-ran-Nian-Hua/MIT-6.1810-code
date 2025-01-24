@@ -75,6 +75,12 @@ char* gets(char *buf, int max)
   return buf;
 }
 
+/**
+ * 将指定名称的文件信息放入*st 中
+ * @param n 文件名
+ * @param st 要存入的结构体中
+ * @return
+ */
 int stat(const char *n, struct stat *st)
 {
   int fd;

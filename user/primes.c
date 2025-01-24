@@ -29,6 +29,7 @@ void grepNumber(int pipefd[2]) {
 		// 子进程读取数据, 继续递归调用
 		close(pipefd[0]);
 		grepNumber(pipeRight); // 递归调用
+
 	}else {
 		// 父进程需要筛选出数字并且将其传给子进程
 		// 关闭父进程右侧读窗口
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
 		// 发送完毕后关闭管道
 		close(pipefd[1]);
 		grepNumber(pipefd);
+		close(pipefd[0]);
 		exit(0);
 	}else {
 		close(pipefd[0]);
@@ -78,7 +80,7 @@ int main(int argc, char* argv[]) {
 		}
 		int end = -1; // 结束标志
 		write(pipefd[1], &end, sizeof(int)); // 将结束标志写入子进程中
-
+		close(pipefd[1]);
 	}
 	wait(0);
 	exit(0);

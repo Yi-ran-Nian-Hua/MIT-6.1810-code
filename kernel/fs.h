@@ -1,9 +1,9 @@
-// On-disk file system format.
-// Both the kernel and user programs use this header file.
+// 文件系统的格式, 用户态和内核态程序都适用
 
 
-#define ROOTINO  1   // root i-number
-#define BSIZE 1024  // block size
+
+#define ROOTINO  1   // root i-number, 根的 i-number 设置为 1
+#define BSIZE 1024  // block size, 每一个块的大小设置为 1024
 
 // Disk layout:
 // [ boot block | super block | log | inode blocks |
@@ -38,7 +38,7 @@ struct dinode {
   uint addrs[NDIRECT+1];   // Data block addresses
 };
 
-// Inodes per block.
+// Inodes per block, 每一个块中 iNode 的个数
 #define IPB           (BSIZE / sizeof(struct dinode))
 
 // Block containing inode i
@@ -51,6 +51,7 @@ struct dinode {
 #define BBLOCK(b, sb) ((b)/BPB + sb.bmapstart)
 
 // Directory is a file containing a sequence of dirent structures.
+// 如何定义目录, 目录也是一个文件, 只不过是一个包含 dirent 结构体的序列
 #define DIRSIZ 14
 
 struct dirent {
