@@ -2,6 +2,8 @@
 // Created by 尹彦江 on 25-1-24.
 //
 
+// 特别提醒!!!!!!! 做在这里的时候因为不晓得栈空间有多大, 所以不要设置太多太大的变量!!!
+// 不然就会出现 SIGTRAP 异常
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
@@ -9,7 +11,7 @@
 
 
 void find(char* path, char* target) {
-	char buffer[512], *p;
+	char buffer[100], *p;
 	int fileDescription; // 用于存储文件描述符
 	struct dirent dirInfo; // 用于保存目录信息
 	struct stat fileInfo; // 用于保存文件信息
@@ -32,7 +34,7 @@ void find(char* path, char* target) {
 		case T_FILE:
 		  // 如果已经是文件类型或者设备文件类型, 判断其是否与 target 相等, 相等就直接输出
 		if (strcmp(path + strlen(path) - strlen(target), target) == 0)
-		  printf("%s\n", target);
+		  printf("%s\n", path);
 		break;
 		// 如果是目录, 递归进行寻找
 		case T_DIR:
@@ -55,7 +57,7 @@ void find(char* path, char* target) {
 					continue;
 				}
 				// 递归调用前, 需要排除掉 .以及..目录以防造成无限递归
-				if (strcmp(dirInfo.name, "/.") == 0 || strcmp(dirInfo.name , "/..") == 0)
+				if (strcmp(buffer + strlen(buffer) - 2, "/.") == 0 || strcmp(buffer + strlen(buffer) - 3, "/..") == 0)
 					continue;
 				find(buffer, target);
 			}
@@ -72,8 +74,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	// 将命令存储下来
-	char path[1024];
-	char target[1024];
+	char path[15];
+	char target[15];
 	target[0] = '/';
 	strcpy(path, argv[1]);
 	strcpy(target + 1, argv[2]);
