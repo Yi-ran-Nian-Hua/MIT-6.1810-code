@@ -8,7 +8,7 @@
 
 struct cpu cpus[NCPU];
 
-struct proc proc[NPROC];
+struct proc proc[NPROC]; // 进程表, 记录了运行的所有进程
 
 struct proc *initproc;
 
@@ -656,5 +656,19 @@ void procdump(void)
       state = "???";
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
+  }
+}
+
+/**
+ * 获取系统正在运行的进程数
+ * @param count
+ */
+void getProc(uint64* count) {
+  *count = 0;
+  struct proc *p;
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->state == UNUSED)
+      continue;
+    (*count)++;
   }
 }

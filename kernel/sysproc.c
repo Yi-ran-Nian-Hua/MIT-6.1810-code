@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -97,5 +98,20 @@ uint64 sys_trace(void) {
   int maskNum; // 获取要追踪的系统调用号
   argint(0, &maskNum);
   myProc->traceMask = maskNum; // 将其保存到进程结构体中
+  return 0;
+}
+
+uint64 sys_sysinfo(void) {
+  struct sysinfo sysinfo;
+  // 首先获取用户地址
+  uint64 destAddr;
+  argaddr(0, &destAddr);
+  // 获取空闲内存量
+  countFreeMem(&sysinfo.freemem);
+  // 获取进程数
+  getProc(&sysinfo.nproc);
+  // 最后返回给用户态
+  if(copyout(myproc()->pagetable, destAddr, (char *)&sysinfo, sizeof(sysinfo)) < 0)
+    return -1;
   return 0;
 }

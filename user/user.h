@@ -3,6 +3,7 @@
  */
 
 struct stat; // 描述文件的信息
+struct sysinfo; // 系统信息
 
 // system calls
 int fork(void);
@@ -27,6 +28,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int trace(int pid); // 添加 trace 系统调用
+int sysinfo(struct sysinfo*); // 添加 sysinfo 系统调用
 
 // ulib.c
 int stat(const char*, struct stat*);
