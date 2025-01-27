@@ -1,4 +1,8 @@
-struct stat;
+/**
+ * 用户空间可以使用的系统调用
+ */
+
+struct stat; // 描述文件的信息
 
 // system calls
 int fork(void);

@@ -1,3 +1,4 @@
+// 文件系统的磁盘块缓存
 // Buffer cache.
 //
 // The buffer cache is a linked list of buf structures holding
