@@ -91,3 +91,11 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64 sys_trace(void) {
+  struct proc* myProc = myproc(); // 首先获取当前进程信息
+  int maskNum; // 获取要追踪的系统调用号
+  argint(0, &maskNum);
+  myProc->traceMask = maskNum; // 将其保存到进程结构体中
+  return 0;
+}

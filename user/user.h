@@ -26,6 +26,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int trace(int pid); // 添加 trace 系统调用
 
 // ulib.c
 int stat(const char*, struct stat*);

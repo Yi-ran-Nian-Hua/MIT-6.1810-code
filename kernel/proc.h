@@ -1,4 +1,9 @@
+/**
+ * 进程调度相关信息
+ */
+
 // Saved registers for kernel context switches.
+// 保存上下文信息的寄存器
 struct context {
   uint64 ra;
   uint64 sp;
@@ -19,6 +24,7 @@ struct context {
 };
 
 // Per-CPU state.
+// 记录每个 CPU 的状态
 struct cpu {
   struct proc *proc;          // The process running on this cpu, or null.
   struct context context;     // swtch() here to enter scheduler().
@@ -79,9 +85,11 @@ struct trapframe {
   /* 280 */ uint64 t6;
 };
 
+// 用于记录进程的状态
 enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
+// 记录进程状态的结构体
 struct proc {
   struct spinlock lock;
 
@@ -104,4 +112,5 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  uint64 traceMask;            // 用于保存 trace 指令的系统调用号
 };

@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "syscall.h"
 #include "defs.h"
+// syscall.c, 负责将具体的系统调用交给相关函数处理
 
 // Fetch the uint64 at addr from the current process.
 int fetchaddr(uint64 addr, uint64 *ip)
@@ -50,6 +51,7 @@ static uint64 argraw(int n)
 }
 
 // Fetch the nth 32-bit system call argument.
+// 获取第 n 个 32 位的系统调用参数
 void argint(int n, int *ip)
 {
   *ip = argraw(n);
@@ -74,6 +76,7 @@ int argstr(int n, char *buf, int max)
 }
 
 // Prototypes for the functions that handle system calls.
+// 处理系统调用的函数原型
 extern uint64 sys_fork(void);
 extern uint64 sys_exit(void);
 extern uint64 sys_wait(void);
@@ -95,6 +98,7 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+extern uint64 sys_trace(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -120,18 +124,35 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_trace]   sys_trace,
 };
+
+// 系统调用的名称
+
+static char* syscallstr[22]={
+"fork", "exit", "wait", "pipe", "read",
+  "kill", "exec", "fstat", "chdir", "dup",
+  "getpid", "sbrk", "sleep", "uptime", "open",
+  "write", "mknod", "unlink", "link", "mkdir",
+  "close", "trace"
+};
+
+
 
 void syscall(void)
 {
   int num;
   struct proc *p = myproc();
 
-  num = p->trapframe->a7;
+  num = p->trapframe->a7; // 获取系统调用号
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
-    p->trapframe->a0 = syscalls[num]();
+    p->trapframe->a0 = syscalls[num](); // 系统调用的返回值会保存在p->trapframe->a0中
+    if ((p->traceMask >> num) & 1) {
+      printf("%d: syscall %s -> %d\n", p->pid, syscallstr[num - 1],
+        p->trapframe->a0);
+    }
   } else {
     printf("%d %s: unknown sys call %d\n",
             p->pid, p->name, num);

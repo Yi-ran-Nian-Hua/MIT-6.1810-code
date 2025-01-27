@@ -2,6 +2,7 @@
 // Support functions for system calls that involve file descriptors.
 //
 
+// 关于文件描述符相关的系统调用函数支持
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"

@@ -2,6 +2,8 @@
         # and causes each hart (i.e. CPU) to jump there.
         # kernel.ld causes the following code to
         # be placed at 0x80000000.
+        # 首次启动指令, 负责将内核加载到 0x80000000位置并且让每个
+        # CPU 都跳转到这里
 .section .text
 .global _entry
 _entry:
@@ -9,6 +11,7 @@ _entry:
         # stack0 is declared in start.c,
         # with a 4096-byte stack per CPU.
         # sp = stack0 + (hartid * 4096)
+        # 设置栈空间大小, 每个 CPU 4096byte
         la sp, stack0
         li a0, 1024*4
         csrr a1, mhartid
