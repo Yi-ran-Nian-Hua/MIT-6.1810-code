@@ -102,6 +102,7 @@ extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
 
+
 #ifdef LAB_NET
 extern uint64 sys_connect(void);
 #endif

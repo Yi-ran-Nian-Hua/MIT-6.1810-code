@@ -132,6 +132,14 @@ found:
     return 0;
   }
 
+  // 分配共享内存区域
+	if((p->sharedPage = (struct usyscall *)kalloc()) == 0){
+		freeproc(p);
+		release(&p->lock);
+		return 0;
+	}
+	p->sharedPage->pid = p->pid;
+
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -160,6 +168,9 @@ freeproc(struct proc *p)
   p->trapframe = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
+  if (p->sharedPage)
+  	kfree((void*)p->sharedPage);
+  p->sharedPage = 0;
   p->pagetable = 0;
   p->sz = 0;
   p->pid = 0;
@@ -169,6 +180,7 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+
 }
 
 // Create a user page table for a given process, with no user memory,
@@ -202,6 +214,14 @@ proc_pagetable(struct proc *p)
     return 0;
   }
 
+	// 创建与物理内存之间的映射关系
+	if (mappages(pagetable, USYSCALL, PGSIZE,
+		(uint64)(p->sharedPage), PTE_R | PTE_U) < 0) {
+		uvmunmap(pagetable, USYSCALL, 1, 0); // ???
+		uvmfree(pagetable, 0);
+		return 0;
+	}
+
   return pagetable;
 }
 
@@ -212,7 +232,9 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
+  uvmunmap(pagetable, USYSCALL, 1, 0);
   uvmfree(pagetable, sz);
+
 }
 
 // a user program that calls exec("/init")
