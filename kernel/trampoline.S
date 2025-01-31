@@ -28,6 +28,8 @@ uservec:
 
         # save user a0 in sscratch so
         # a0 can be used to get at TRAPFRAME.
+        # csrw指令交换 a0 以及 sscratch 寄存器的值, 这样 a0 保存的就是 trapframe
+        # 的地址, sscratch 保存的就是原本 a0 的地址
         csrw sscratch, a0
 
         # each process has a separate p->trapframe memory area,
