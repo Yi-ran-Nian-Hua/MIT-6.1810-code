@@ -58,6 +58,8 @@ void            itrunc(struct inode*);
 void            ramdiskinit(void);
 void            ramdiskintr(void);
 void            ramdiskrw(struct buf*);
+void            krefpage(void* physicalAddr);
+void*           mykalloc(void* physicalAddr);
 
 // kalloc.c
 void*           kalloc(void);
@@ -173,6 +175,8 @@ uint64          walkaddr(pagetable_t, uint64);
 int             copyout(pagetable_t, uint64, char *, uint64);
 int             copyin(pagetable_t, char *, uint64, uint64);
 int             copyinstr(pagetable_t, char *, uint64, uint64);
+int             uvmcheckcowpage(uint64 virtualAddr);
+int             uvmcow(uint64 virtualAddr);
 
 // plic.c
 void            plicinit(void);
