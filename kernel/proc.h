@@ -104,4 +104,9 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  uint64 alarmInterval;        // 报警间隔
+  void (*handler)();           // 到达间隔后的处理程序(函数指针)
+  uint64 remainTik;            // 还剩下的嘀嗒数
+  struct trapframe* beforeTrapframe; // 保存回调前的trapframe 信息
+  uint64 isCall;               // 确保回调函数只有一次调用
 };

@@ -72,3 +72,26 @@ uint64 sys_uptime(void) {
 	release(&tickslock);
 	return xticks;
 }
+
+
+uint64 sys_sigalarm(void) {
+ // 首先获取相关调用参数
+	int timeInterval;
+	uint64 handler;
+	argint(0, &timeInterval);
+	argaddr(1, &handler);
+
+	struct proc* p = myproc();
+	p->alarmInterval = timeInterval;
+	p->handler = (void(*)()) handler;
+	p->remainTik = timeInterval;
+
+	return 0;
+}
+
+uint64 sys_sigreturn(void) {
+	struct proc* p = myproc();
+	p->trapframe = p->beforeTrapframe;
+	p->isCall = 0;
+	return 0;
+}
