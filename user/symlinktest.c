@@ -45,10 +45,16 @@ static int
 stat_slink(char *pn, struct stat *st)
 {
   int fd = open(pn, O_RDONLY | O_NOFOLLOW);
-  if(fd < 0)
-    return -1;
-  if(fstat(fd, st) != 0)
-    return -1;
+  if(fd < 0) {
+	//printf("open failed\n");
+  	return -1;
+  }
+
+  if(fstat(fd, st) != 0) {
+	//printf("fstat failed\n");
+  	return -1;
+  }
+
   return 0;
 }
 
